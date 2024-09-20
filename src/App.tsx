@@ -1,10 +1,21 @@
-import { useState } from 'react'
+import { useEffect, useReducer } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { DecrementAction, IncrementAction, store } from './store'
 
 function App() {
-  const [count, setCount] = useState(0)
+  // const [count, setCount] = useState(0)
+
+  const [, forceUpdate] = useReducer((x) => x + 1, 0)
+
+  useEffect(() => {
+    const unsubscribe =  store.subscribe(() => {
+      forceUpdate()
+    });
+
+    return unsubscribe;
+  }, []);
 
   return (
     <>
@@ -18,8 +29,12 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+        counter {store.getState().counter}
+        <button onClick={() => store.dispatch({type: 'increment'} satisfies IncrementAction)}>
+          Increment
+        </button>
+        <button onClick={() => store.dispatch({type: 'decrement'} satisfies DecrementAction)}>
+          Decrement
         </button>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
