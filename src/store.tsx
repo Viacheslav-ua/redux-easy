@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useRef } from "react";
 
 
 type CounterState = {
@@ -69,21 +69,33 @@ const reducer = (state = initialState, action: Action): State => {
   }
 };
 
+const selectCounter = (state: AppState, counterId: CounterId) => state.counters[counterId];
+
 export function Counter({ counterId }: { counterId: CounterId }) {
+  console.log('render counter', counterId);
 
   const [, forceUpdate] = useReducer((x) => x + 1, 0)
+  const previousStateRef = useRef<ReturnType<typeof selectCounter>>();
 
   useEffect(() => {
     const unsubscribe = store.subscribe(() => {
-      forceUpdate()
+      const currentState = selectCounter(store.getState(), counterId);
+      const previousState = previousStateRef.current;
+
+      if(currentState?.counter !== previousState?.counter) {
+        forceUpdate()
+      }
+      previousStateRef.current = currentState; 
     });
 
     return unsubscribe;
   }, []);
 
+  const CounterState = selectCounter(store.getState(), counterId);
+
   return (
     <>
-      counter {store.getState().counters[counterId]?.counter}
+      counter {CounterState?.counter}
       <button onClick={() => store.dispatch({ type: 'increment', payload: { counterId } } satisfies IncrementAction)}>
         Increment
       </button>
@@ -93,6 +105,9 @@ export function Counter({ counterId }: { counterId: CounterId }) {
     </>
   )
 }
+
 export const store = configureStore({
   reducer: reducer,
 });
+
+export type AppState = ReturnType<typeof store.getState>;
