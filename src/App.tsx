@@ -2,7 +2,7 @@ import { useEffect, useReducer } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
-import { Counter, DecrementAction, IncrementAction, store } from './store'
+import { Counter } from './store'
 
 function App() {
   // const [count, setCount] = useState(0)

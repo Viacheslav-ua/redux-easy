@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useEffect, useReducer, useRef } from "react";
+import { useDispatch, useSelector, useStore } from "react-redux";
 
 
 type CounterState = {
@@ -69,37 +70,22 @@ const reducer = (state = initialState, action: Action): State => {
   }
 };
 
-const selectCounter = (state: AppState, counterId: CounterId) => state.counters[counterId];
 
 export function Counter({ counterId }: { counterId: CounterId }) {
-  console.log('render counter', counterId);
+  console.log("render counter", counterId);
+  
+  const dispatch = useDispatch()
 
-  const [, forceUpdate] = useReducer((x) => x + 1, 0)
-  const previousStateRef = useRef<ReturnType<typeof selectCounter>>();
-
-  useEffect(() => {
-    const unsubscribe = store.subscribe(() => {
-      const currentState = selectCounter(store.getState(), counterId);
-      const previousState = previousStateRef.current;
-
-      if(currentState?.counter !== previousState?.counter) {
-        forceUpdate()
-      }
-      previousStateRef.current = currentState; 
-    });
-
-    return unsubscribe;
-  }, []);
-
-  const CounterState = selectCounter(store.getState(), counterId);
+  // useSelector((state) => state.counters[counterId])
+  const CounterState = useAppSelector((state) => selectCounter(state, counterId));
 
   return (
     <>
       counter {CounterState?.counter}
-      <button onClick={() => store.dispatch({ type: 'increment', payload: { counterId } } satisfies IncrementAction)}>
+      <button onClick={() => dispatch({ type: 'increment', payload: { counterId } } satisfies IncrementAction)}>
         Increment
       </button>
-      <button onClick={() => store.dispatch({ type: 'decrement', payload: { counterId } } satisfies DecrementAction)}>
+      <button onClick={() => dispatch({ type: 'decrement', payload: { counterId } } satisfies DecrementAction)}>
         Decrement
       </button>
     </>
@@ -110,4 +96,10 @@ export const store = configureStore({
   reducer: reducer,
 });
 
+export const selectCounter = (state: AppState, counterId: CounterId) => state.counters[counterId];
 export type AppState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+
+export const useAppSelector = useSelector.withTypes<AppState>()
+export const useAppDispatch = useDispatch.withTypes<AppDispatch>()
+export const useAppStore = useStore.withTypes<typeof store>()
