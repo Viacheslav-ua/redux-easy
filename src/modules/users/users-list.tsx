@@ -1,6 +1,7 @@
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useAppDispath, useAppSelector } from "../../store";
 import { UserId, usersSlice } from "./users.slice";
+import { api } from "../../shared/api";
 
 export function UsersList() {
   const [sortType, setSortType] = useState<"asc" | "desc">("asc");
@@ -12,6 +13,13 @@ export function UsersList() {
   const selectedUserId = useAppSelector(
     usersSlice.selectors.selectSelectedUserId
   );
+
+  useEffect(() => {
+    api.getUsers().then((users) => {
+      console.log(users);
+      
+    })
+  }, []);
 
   return (
     <div className="flex flex-col items-center">
