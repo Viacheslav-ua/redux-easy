@@ -1,0 +1,34 @@
+{
+  "users": [
+    {
+      "id": "user1",
+      "name": "John",
+      "description": "John is the creator of Redux Easy"
+    },
+    {
+      "id": "user2",
+      "name": "Jane",
+      "description": "Jane is the creator of Redux Easy"
+    },
+    {
+      "id": "user3",
+      "name": "Jim",
+      "description": "Jim is the creator of Redux Easy"
+    },
+    {
+      "id": "user4",
+      "name": "Jack",
+      "description": "Jack is the creator of Redux Easy"
+    },
+    {
+      "id": "user5",
+      "name": "Jill",
+      "description": "Jill is the creator of Redux Easy"
+    },
+    {
+      "id": "user6",
+      "name": "Jen",
+      "description": "Jen is the creator of Redux Easy"
+    }
+  ]
+}
