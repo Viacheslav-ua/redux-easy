@@ -1,10 +1,19 @@
 import { memo, useEffect, useState } from "react";
-import { useAppDispath, useAppSelector } from "../../store";
+import { useAppDispath, useAppSelector, useAppStore } from "../../store";
 import { UserId, usersSlice } from "./users.slice";
 import { api } from "../../shared/api";
 
 export function UsersList() {
+  const dispatch = useAppDispath();
+  const appStore = useAppStore();
   const [sortType, setSortType] = useState<"asc" | "desc">("asc");
+
+  const isPending = useAppSelector(
+    usersSlice.selectors.selectIsFetchUsersPending
+  );
+  const isIdle = useAppSelector(
+    usersSlice.selectors.selectIsFetchUsersIdle
+  );
 
   const sortedUsers = useAppSelector((state) =>
     usersSlice.selectors.selectSortedUsers(state, sortType)
@@ -15,11 +24,22 @@ export function UsersList() {
   );
 
   useEffect(() => {
+    const isIdle = usersSlice.selectors.selectIsFetchUsersIdle(appStore.getState());
+    if (!isIdle) {
+      return;
+    }
+    dispatch(usersSlice.actions.fetchUsersPending());
     api.getUsers().then((users) => {
-      console.log(users);
-      
+      // console.log(users);
+      dispatch(usersSlice.actions.fetchUsersSuccess({ users }));
+    }).catch(() => {
+      dispatch(usersSlice.actions.fetchUsersFailed());
     })
-  }, []);
+  }, [dispatch, isIdle]);
+
+  if (isPending) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex flex-col items-center">
