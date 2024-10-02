@@ -1,7 +1,6 @@
 import { memo, useEffect, useState } from "react";
 import { useAppDispath, useAppSelector, useAppStore } from "../../store";
 import { UserId, usersSlice } from "./users.slice";
-import { api } from "../../shared/api";
 import { fetchUsers } from "./model/fetch-users";
 
 export function UsersList() {
