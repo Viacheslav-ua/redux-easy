@@ -2,12 +2,16 @@ import { configureStore, createSelector } from "@reduxjs/toolkit";
 import { useDispatch, useSelector, useStore } from "react-redux";
 import { usersSlice } from "./modules/users/users.slice";
 import { countersReducer } from "./modules/counters/counters.slice";
+import { baseApi } from "./shared/api";
 
 export const store = configureStore({
   reducer: {
     counters: countersReducer,
     [usersSlice.name]: usersSlice.reducer,
+    [baseApi.reducerPath]: baseApi.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(baseApi.middleware),
 });
 
 

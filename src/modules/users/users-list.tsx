@@ -1,63 +1,53 @@
-import { memo, useEffect, useState } from "react";
-import { useAppDispath, useAppSelector, useAppStore } from "../../store";
+import { memo, useMemo, useState } from "react";
+import { useAppDispath, useAppSelector } from "../../store";
 import { UserId, usersSlice } from "./users.slice";
-import { fetchUsers } from "./model/fetch-users";
+import { useGetUsersQuery } from "./api";
 
 export function UsersList() {
-  const dispatch = useAppDispath();
-  const appStore = useAppStore();
+
   const [sortType, setSortType] = useState<"asc" | "desc">("asc");
 
-  const isPending = useAppSelector(
-    usersSlice.selectors.selectIsFetchUsersPending
-  );
-  const isIdle = useAppSelector(
-    usersSlice.selectors.selectIsFetchUsersIdle
-  );
+  const { data: users, isLoading } = useGetUsersQuery()
 
-  const sortedUsers = useAppSelector((state) =>
-    usersSlice.selectors.selectSortedUsers(state, sortType)
-  );
+  const sortedUsers = useMemo(() => {
+    const sortedUsers = [...(users ?? [])]?.sort((a, b) => {
+      if (sortType === "asc") {
+        return a.name.localeCompare(b.name);
+      } else {
+        return b.name.localeCompare(a.name);
+      }
+    });
+    return sortedUsers;
+  }, [users, sortType]);
 
-  const selectedUserId = useAppSelector(
-    usersSlice.selectors.selectSelectedUserId
-  );
-
-  useEffect(() => {
-    fetchUsers(appStore.dispatch, appStore.getState);
-  }, [dispatch, isIdle]);
-
-  if (isPending) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="flex flex-col items-center">
-      {!selectedUserId ? (
-        <div className="flex flex-col items-center justify-between">
-          <div className="flex flex-row items-center">
-            <button
-              onClick={() => setSortType("asc")}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Asc
-            </button>
-            <button
-              onClick={() => setSortType("desc")}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2"
-            >
-              Desc
-            </button>
-          </div>
-          <ul className="list-none">
-            {sortedUsers.map((user) => (
-              <UserListItem userId={user.id} key={user.id} />
-            ))}
-          </ul>
+
+      <div className="flex flex-col items-center justify-between">
+        <div className="flex flex-row items-center">
+          <button
+            onClick={() => setSortType("asc")}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Asc
+          </button>
+          <button
+            onClick={() => setSortType("desc")}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mx-2"
+          >
+            Desc
+          </button>
         </div>
-      ) : (
-        <SelectedUser userId={selectedUserId} />
-      )}
+        <ul className="list-none">
+          {sortedUsers.map((user) => (
+            <UserListItem userId={user.id} key={user.id} />
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
